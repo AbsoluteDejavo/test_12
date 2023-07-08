@@ -1,0 +1,50 @@
+import discord
+import random
+import string
+import asyncio
+
+TOKEN = "YOUR_DISCORD_BOT_TOKEN"
+
+client = discord.Client()
+
+@client.event
+async def on_ready():
+    print(f"We have logged in as {client.user}")
+
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+
+    if message.content.startswith("!generate"):
+        email = generate_email()
+        password = generate_password()
+        username = generate_username()
+
+        try:
+            await message.author.send(f"Generated account details:\nEmail: {email}\nPassword: {password}\nUsername: {username}")
+        except discord.errors.Forbidden:
+            await message.channel.send("I couldn't send you a direct message. Please enable DMs from server members.")
+
+@client.event
+async def on_member_join(member):
+    verification_code = generate_verification_code()
+    await member.send(f"Welcome to the server! Please verify your email with the following code: {verification_code}")
+
+def generate_email():
+    email = "".join(random.choices(string.ascii_letters + string.digits, k=10)) + "@example.com"
+    return email
+
+def generate_password():
+    password = "".join(random.choices(string.ascii_letters + string.digits, k=10))
+    return password
+
+def generate_username():
+    username = "".join(random.choices(string.ascii_letters + string.digits, k=10))
+    return username
+
+def generate_verification_code():
+    code = "".join(random.choices(string.digits, k=6))
+    return code
+
+client.run(TOKEN)
